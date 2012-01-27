@@ -21,7 +21,7 @@ class AmazonProductPuller {
     add_shortcode('amazon_content', array(&$this, 'app_content') );
     add_action( 'template_redirect', array( &$this, 'initialize' ) );
     
-    register_uninstall_hook( __FILE__, array( &$this, 'deinstall_amazonpp' ) );
+    register_uninstall_hook( __FILE__, array( 'AmazonProductPuller::deinstall_amazonpp' ) );
 
   }
   
@@ -224,7 +224,7 @@ class AmazonProductPuller {
     return trim($output);
   }
 
-  function deinstall_amazonpp() {
+  public static function deinstall_amazonpp() {
     delete_option('aws_api_key');
     delete_option('aws_api_secret_key');
     delete_option('aws_associate_tag');
