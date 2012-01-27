@@ -21,7 +21,7 @@ class AmazonProductPuller {
     add_shortcode('amazon_content', array(&$this, 'app_content') );
     add_action( 'template_redirect', array( &$this, 'initialize' ) );
     
-    register_uninstall_hook( __FILE__, array( 'AmazonProductPuller::deinstall_amazonpp' ) );
+    register_uninstall_hook( __FILE__, 'AmazonProductPuller::deinstall_amazonpp' );
 
   }
   
