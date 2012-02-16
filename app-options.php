@@ -12,7 +12,6 @@ function amazon_pp_menu() {
   }  
 }
 
-
 function register_amazonpp_settings() {
   //register our settings
   register_setting( 'amazonpp-settings-group', 'aws_api_key' );
@@ -20,8 +19,6 @@ function register_amazonpp_settings() {
   register_setting( 'amazonpp-settings-group', 'aws_associate_tag' );
   register_setting( 'amazonpp-settings-group', 'amazon_pp_page_id' );
 }
-
-
 
 function amazon_pp_options() {
   
@@ -33,7 +30,6 @@ function amazon_pp_options() {
   
   <div class="wrap">
     <h2>AMAZON PRODUCT PULLER - OPTIONS</h2>
-    
     
     <form action="options.php" method="POST">
       <?php settings_fields( 'amazonpp-settings-group' ); ?>
@@ -79,8 +75,6 @@ function amazon_pp_options() {
   
     </form>
   </div>
-
-  
-  
+ 
 <?php
 }
