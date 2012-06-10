@@ -4,12 +4,12 @@ jQuery(function($) {
   
   var total, current = 1;
 
-  $('.tmpl_li').on('click', '.large_image', function() {
+  $('#amazon_content').on('click', '.large_image', function(event) {
+    event.preventDefault();
     $.colorbox({
       href: $(this).attr('href'),
       transition: 'elastic'
     });
-    return false;
   });
 
   // user clicks form submit
