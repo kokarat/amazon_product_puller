@@ -12,16 +12,23 @@ License: GPL2
 class AmazonProductPuller {
 
   public function __construct() {
+
     if ( is_admin() ) {
       add_action( 'wp_ajax_nopriv_amazon-product-puller', array(&$this, 'amazon_product_puller') );
       add_action( 'wp_ajax_amazon-product-puller', array(&$this, 'amazon_product_puller') );
       require 'app-options.php';
     }
     
+    /*! plugin update stuff !*/
+    if ( ABSPATH . 'wp-content' . '/plugins/amazon_product_puller/inc/AmazonppAutoUpdate.php' ) ) {
+      require_once ABSPATH . 'wp-content' . '/plugins/amazon_product_puller/inc/AmazonppAutoUpdate.php';
+      new AmazonppAutoUpdate('1.0', 'http://napier.selfip.com/smashing/plugin-update/update-handler.php', plugin_basename(__FILE__) );
+    }
+
     add_shortcode('amazon_content', array(&$this, 'app_content') );
     add_action( 'template_redirect', array( &$this, 'initialize' ) );
     
-    register_uninstall_hook( __FILE__, 'AmazonProductPuller::deinstall_amazonpp' );
+    register_uninstall_hook( __FILE__, 'AmazonProductPuller::deinstall_amazonpp' );  
 
   }
   
@@ -58,14 +65,14 @@ class AmazonProductPuller {
         wp_register_style('colorbox', plugins_url('js/colorbox/colorbox.css', __FILE__ )) ;
         wp_enqueue_style('colorbox');
         
-        wp_register_script('colorbox', plugins_url('js/colorbox/jquery.colorbox-min.js', __FILE__ ));
+        wp_register_script('colorbox', plugins_url('js/colorbox/jquery.colorbox-min.js', __FILE__ ), array( 'jquery' ));
         wp_enqueue_script('colorbox'); 
       }
       else {
         wp_register_style('colorbox', network_home_url() .'/wp-content/plugins/amazon_product_puller/js/colorbox/colorbox.css');
         wp_enqueue_style('colorbox');
         
-        wp_register_script('colorbox', network_home_url() .'/wp-content/plugins/amazon_product_puller/js/colorbox/jquery.colorbox-min.js');
+        wp_register_script('colorbox', network_home_url() .'/wp-content/plugins/amazon_product_puller/js/colorbox/jquery.colorbox-min.js', array( 'jquery' ));
         wp_enqueue_script('colorbox');
       }
       
@@ -98,128 +105,127 @@ class AmazonProductPuller {
     $attrib = shortcode_atts(array(), $attrib);
   
     $output = '
+<!-- *** TEMPLATE -->
+<script id="template" type="text/x-jquery-tmpl">
+  
+  <li class="tmpl_li">
+    <div class="img_area">
+    <a class="large_image" href="${largeimg}">
+      <img class="tmpl_img" src="${smallimg}" />
+    </a>
+    </div>
+    <div class="tmpl_info">
+      
+      <a href="${link}">
+        <h4>${title}<span class="external_link"></span></h4>
+      </a>
+      
+      {{if feature}}
+        <p>${feature}</p>
+      {{else}}
+        <p>{{if binding}} ${binding} {{/if}} {{if genre}}, ${genre} {{/if}}</p>
+      {{/if}}
+      
+      {{if price}}
+        <p>${price}</p>
+      {{/if}}
+      
+    </div>
     
-    <!-- *** TEMPLATE -->
-    <script id="template" type="text/x-jquery-tmpl">
-      
-      <li class="tmpl_li">
-        <div class="img_area">
-        <a class="large_image" href="${largeimg}">
-          <img class="tmpl_img" src="${smallimg}" />
-        </a>
-        </div>
-        <div class="tmpl_info">
-          
-          <a href="${link}">
-            <h4>${title}<span class="external_link"></span></h4>
-          </a>
-          
-          {{if feature}}
-            <p>${feature}</p>
-          {{else}}
-            <p>{{if binding}} ${binding} {{/if}} {{if genre}}, ${genre} {{/if}}</p>
-          {{/if}}
-          
-          {{if price}}
-            <p>${price}</p>
-          {{/if}}
-          
-        </div>
-        
-      </li>
-      
-    </script>
-    <!-- *** END TEMPLATE -->
+  </li>
   
-    <div id="amazonpp_wrapper">
-      
-      <form action="" method="post">
-        <table>
-        <tr>
-        <td>
-        <select id="category">
-          <option value="All">All</option>
-          <option value="Apparel">Apparel</option>
-          <option value="Appliances">Appliances</option>
-          <option value="ArtsAndCrafts">Arts &amp; Crafts</option>
-          <option value="Automotive">Automotive</option>
-          <option value="Baby">Baby</option>
-          <option value="Beauty">Beauty</option>
-          <option value="Blended">Blended</option>
-          <option value="Books">Books</option>
-          <option value="Classical">Classical</option>
-          <option value="DigitalMusic">Digital Music</option>
-          <option value="Music">Music</option>
-          <option value="DVD">DVD</option>
-          <option value="Shoes">Shoes</option>
-          <option value="Software">Software</option>
-          <option value="Grocery">Grocery</option>
-          <option value="MP3Downloads">MP3 Downloads</option>
-          <option value="Electronics">Electronics</option>
-          <option value="HealthPersonalCare">Health, Personal &amp; Care</option>
-          <option value="Electronics">Electronics</option>
-          <option value="HomeGarden">Home - Garden</option>
-          <option value="Industrial">Industrial</option>
-          <option value="Jewelry">Jewelry</option>
-          <option value="KindleStore">KindleStore</option>
-          <option value="Kitchen">Kitchen</option>
-          <option value="Magazines">Magazines</option>
-          <option value="Merchants">Merchants</option>
-          <option value="Miscellaneous">Miscellaneous</option>
-          <option value="MobileApps">Mobile Apps</option>
-          <option value="MusicalInstruments">Musical Instruments</option>
-          <option value="MusicTracks">Music Tracks</option>
-          <option value="OfficeProducts">Office Products</option>
-          <option value="OutdoorLiving">Outdoor Living</option>
-          <option value="PCHardware">PC Hardware</option>
-          <option value="PetSupplies">Pet Supplies</option>
-          <option value="SportingGoods">Sporting Goods</option>
-          <option value="UnboxVideo">Unbox Video</option>
-          <option value="Tools">Tools</option>
-          <option value="Toys">Toys</option>
-          <option value="VideoGames">VideoGames</option>
-          <option value="Watches">Watches</option>
-          <option value="WirelessAccessories">Wireless Accessories</option>
-          <option value="Wireless">Wireless</option>
-          <option value="VHS">VHS</option>
-        </select>
-        </td>
-        <td>
-          <input type="text" name="searchbox" placeholder="Search..." id="searchbox" />
-        </td>
-        <td>
-          <input type="submit" name="submit" id="amazonpp_submit" value="Go" />
-        </td>
-        <td>
-          <span id="app_ajax_wheel"></span>
-        </td>
-        </tr>
-        </table>
-      </form>
-      
-      <!-- pager top -->
-      <div class="amazonpp_pager">
-        <span class="amazonpp_prev"></span>
-        <span class="amazonpp_next"></span>
-        <span class="amazonpp_current"></span>
-        <span class="of">of</span>
-        <span class="amazonpp_total"></span>
-        <span class="amazonpp_ajax_loader"><img src="' . plugins_url('img/small-facebook.gif', __FILE__ ) .'" /></span>
-      </div>
-      
-      <div id="amazon_content"></div>
-      
-      <!-- pager bottom -->
-      <div class="amazonpp_pager">
-        <span class="amazonpp_prev"></span>
-        <span class="amazonpp_next"></span>
-        <span class="amazonpp_current"></span>
-        <span class="of">of</span>
-        <span class="amazonpp_total"></span>
-        <span class="amazonpp_ajax_loader"><img src="' . plugins_url('img/small-facebook.gif', __FILE__ ) .'" /></span>
-      </div>
+</script>
+<!-- *** END TEMPLATE -->
   
-    </div> <!-- End #wrapper -->';
+<div id="amazonpp_wrapper">
+  
+  <form action="" method="post">
+    <table>
+    <tr>
+    <td>
+    <select id="category">
+      <option value="All">All</option>
+      <option value="Apparel">Apparel</option>
+      <option value="Appliances">Appliances</option>
+      <option value="ArtsAndCrafts">Arts &amp; Crafts</option>
+      <option value="Automotive">Automotive</option>
+      <option value="Baby">Baby</option>
+      <option value="Beauty">Beauty</option>
+      <option value="Blended">Blended</option>
+      <option value="Books">Books</option>
+      <option value="Classical">Classical</option>
+      <option value="DigitalMusic">Digital Music</option>
+      <option value="Music">Music</option>
+      <option value="DVD">DVD</option>
+      <option value="Shoes">Shoes</option>
+      <option value="Software">Software</option>
+      <option value="Grocery">Grocery</option>
+      <option value="MP3Downloads">MP3 Downloads</option>
+      <option value="Electronics">Electronics</option>
+      <option value="HealthPersonalCare">Health, Personal &amp; Care</option>
+      <option value="Electronics">Electronics</option>
+      <option value="HomeGarden">Home - Garden</option>
+      <option value="Industrial">Industrial</option>
+      <option value="Jewelry">Jewelry</option>
+      <option value="KindleStore">KindleStore</option>
+      <option value="Kitchen">Kitchen</option>
+      <option value="Magazines">Magazines</option>
+      <option value="Merchants">Merchants</option>
+      <option value="Miscellaneous">Miscellaneous</option>
+      <option value="MobileApps">Mobile Apps</option>
+      <option value="MusicalInstruments">Musical Instruments</option>
+      <option value="MusicTracks">Music Tracks</option>
+      <option value="OfficeProducts">Office Products</option>
+      <option value="OutdoorLiving">Outdoor Living</option>
+      <option value="PCHardware">PC Hardware</option>
+      <option value="PetSupplies">Pet Supplies</option>
+      <option value="SportingGoods">Sporting Goods</option>
+      <option value="UnboxVideo">Unbox Video</option>
+      <option value="Tools">Tools</option>
+      <option value="Toys">Toys</option>
+      <option value="VideoGames">VideoGames</option>
+      <option value="Watches">Watches</option>
+      <option value="WirelessAccessories">Wireless Accessories</option>
+      <option value="Wireless">Wireless</option>
+      <option value="VHS">VHS</option>
+    </select>
+    </td>
+    <td>
+      <input type="text" name="searchbox" placeholder="Search..." id="searchbox" />
+    </td>
+    <td>
+      <input type="submit" name="submit" id="amazonpp_submit" value="Go" />
+    </td>
+    <td>
+      <span id="app_ajax_wheel"></span>
+    </td>
+    </tr>
+    </table>
+  </form>
+  
+  <!-- pager top -->
+  <div class="amazonpp_pager">
+    <span class="amazonpp_prev"></span>
+    <span class="amazonpp_next"></span>
+    <span class="amazonpp_current"></span>
+    <span class="of">of</span>
+    <span class="amazonpp_total"></span>
+    <span class="amazonpp_ajax_loader"><img src="' . plugins_url('img/small-facebook.gif', __FILE__ ) .'" /></span>
+  </div>
+  
+  <div id="amazon_content"></div>
+  
+  <!-- pager bottom -->
+  <div class="amazonpp_pager">
+    <span class="amazonpp_prev"></span>
+    <span class="amazonpp_next"></span>
+    <span class="amazonpp_current"></span>
+    <span class="of">of</span>
+    <span class="amazonpp_total"></span>
+    <span class="amazonpp_ajax_loader"><img src="' . plugins_url('img/small-facebook.gif', __FILE__ ) .'" /></span>
+  </div>
+
+</div> <!-- End #wrapper -->';
   
     return trim($output);
   }
