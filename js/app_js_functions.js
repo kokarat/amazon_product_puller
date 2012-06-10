@@ -16,7 +16,7 @@ jQuery(function($) {
   // user clicks form submit
   $('#amazonpp_submit').click(function() {
     current = 1;
-    ajax_amazon($('#category :selected').text(), $('#searchbox').val(), null, 1);
+    ajax_amazon.call(this, $('#category :selected').text(), $('#searchbox').val(), null, 1);
     return false;
   });
 
@@ -26,7 +26,7 @@ jQuery(function($) {
       return;
     else {
       current -= 1;
-      ajax_amazon($('#category :selected').text(), $('#searchbox').val(), current);
+      ajax_amazon.call(this, $('#category :selected').text(), $('#searchbox').val(), current);
     }
   });
   
@@ -36,7 +36,7 @@ jQuery(function($) {
       return;
     else {
       current += 1;
-      ajax_amazon($('#category :selected').text(), $('#searchbox').val(), current);
+      ajax_amazon.call(this, $('#category :selected').text(), $('#searchbox').val(), current);
     }
   });
   
@@ -46,8 +46,8 @@ jQuery(function($) {
   });
 
 
-  // ajax function used from 'submit button' & 'click events'
   function ajax_amazon(cat, search, item, submit) {
+    console.log(arguments);
     
     if(submit) {
       $('#app_ajax_wheel').css('display', 'block');
@@ -65,7 +65,7 @@ jQuery(function($) {
         amazon: 'query',
         category: cat,
         searchterm: search,
-        itempage: item != null ? item : '1'
+        itempage: (item !== null) ? item : '1'
       },
       dataType: 'json',
       success: function(data) {
@@ -86,8 +86,8 @@ jQuery(function($) {
               price: getPrice(obj),
               genre: obj.ItemAttributes ? obj.ItemAttributes.Genre : '',
               product_group: obj.ItemAttributes ? obj.ItemAttributes.ProductGroup : '',
-              binding: obj.ItemAttributes ? obj.ItemAttributes.Binding : '',
-            }
+              binding: obj.ItemAttributes ? obj.ItemAttributes.Binding : ''
+            };
             
           });
           ul_c = $('<ul id="ul_container">');
@@ -103,10 +103,12 @@ jQuery(function($) {
           $('#amazon_content').html('');
           $('.amazonpp_pager').css('display', 'none');
         }
+        
+      },
+      complete: function(data) {
         $('.amazonpp_ajax_loader').css('display', 'none');
         $('#app_ajax_wheel').css('display', 'none');
         $('html, body').animate({scrollTop:0}, 'fast');
-        
       }
       
     });

@@ -20,26 +20,27 @@ class AmazonProductPuller {
     }
     
     /*! plugin update stuff !*/
-    if ( ABSPATH . 'wp-content' . '/plugins/amazon_product_puller/inc/AmazonppAutoUpdate.php' ) ) {
+    if ( ABSPATH . 'wp-content' . '/plugins/amazon_product_puller/inc/AmazonppAutoUpdate.php' ) {
       require_once ABSPATH . 'wp-content' . '/plugins/amazon_product_puller/inc/AmazonppAutoUpdate.php';
-      new AmazonppAutoUpdate('1.0', 'http://napier.selfip.com/smashing/plugin-update/update-handler.php', plugin_basename(__FILE__) );
+      new AmazonppAutoUpdate('0.7', 'http://napier.selfip.com/smashing/plugin-update/update-handler.php', plugin_basename(__FILE__) );
     }
 
-    add_shortcode('amazon_content', array(&$this, 'app_content') );
+    add_shortcode('amazon_content', array( &$this, 'app_content' ) );
     add_action( 'template_redirect', array( &$this, 'initialize' ) );
     
+    // needs to be static since > 3.3.1
     register_uninstall_hook( __FILE__, 'AmazonProductPuller::deinstall_amazonpp' );  
 
   }
   
   function initialize() {
-
     global $wp_query;
 
-    #$page_object = $wp_query->get_queried_object();
-    #print '<pre>'.print_r($page_object, true).'<pre>'; die();
+    // $page_object = $wp_query->get_queried_object();
+    // print '<pre>'.print_r($page_object, true).'<pre>'; die();
     $post_id     = $wp_query->get_queried_object_id();
     
+    // works on 'template_redirect'.
     if(!is_admin() && is_page() && $post_id == get_option('amazon_pp_page_id', '')) {
       
       wp_enqueue_script( 'my-js-functions', plugin_dir_url( __FILE__ ) . 'js/app_js_functions.js', array( 'jquery' ) );
@@ -75,7 +76,6 @@ class AmazonProductPuller {
         wp_register_script('colorbox', network_home_url() .'/wp-content/plugins/amazon_product_puller/js/colorbox/jquery.colorbox-min.js', array( 'jquery' ));
         wp_enqueue_script('colorbox');
       }
-      
 
     }
     
