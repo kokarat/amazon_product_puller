@@ -2,10 +2,9 @@
 
 jQuery(function($) {
   
-  var total;
-  var current = 1;
+  var total, current = 1;
 
-  $('.large_image').live('click', function() {
+  $('.tmpl_li').on('click', '.large_image', function() {
     $.colorbox({
       href: $(this).attr('href'),
       transition: 'elastic'
@@ -55,7 +54,6 @@ jQuery(function($) {
     else {
       $('.amazonpp_ajax_loader').css('display', 'block');
     }
-    
     
     $.ajax({
       url: amazon_lib.ajaxurl,
@@ -127,7 +125,7 @@ jQuery(function($) {
       else if("OfferSummary" in ob) {
         
         if("LowestNewPrice" in ob.OfferSummary)
-          return ob.OfferSummary.LowestNewPrice.FormattedPrice
+          return ob.OfferSummary.LowestNewPrice.FormattedPrice;
           
       }
       else if(typeof ob.ItemAttributes == 'object') {
