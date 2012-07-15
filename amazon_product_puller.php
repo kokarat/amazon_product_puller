@@ -16,7 +16,7 @@ class AmazonProductPuller {
     if ( is_admin() ) {
       add_action( 'wp_ajax_nopriv_amazon-product-puller', array(&$this, 'amazon_product_puller') );
       add_action( 'wp_ajax_amazon-product-puller', array(&$this, 'amazon_product_puller') );
-      require 'app-options.php';
+      require_once 'app-options.php';
     }
     
     /*! plugin update stuff !*/
